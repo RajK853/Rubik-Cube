@@ -172,6 +172,8 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 		# draw front, (right/left) and (top/down) faces.
 		for face in ["front", "right", "up", "back", "left", "down"]:
 			self.drawFace(face, firstRun)
+		if firstRun:
+			self.shuffleCube()
 
 	def rotateLayer(self, dir, column, row):        # make necessary changes to adjust the colors in faces before swapping them
 		# While rotating the layers, the (0, 0) coordinate of one face may not be the (0, 0) coordinate of another face.
@@ -329,6 +331,17 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 					columns = "".join(columns)
 					self.rotateLayer(dir, columns, None)
 
+	def shuffleCube(self):
+		frequency = random.randint(10, 20)       # number of times to rotate the cube
+		all_faces = [self.FRONT, self.RIGHT, self.BACK, self.LEFT, self.UP, self.DOWN]
+		all_dir = ["Left", "Right", "Up", "Down"]
+		for i in range(frequency):
+			#face = random.choice(all_faces)         # random face
+			dir = random.choice(all_dir)            # random dir
+			x, y = random.randint(0, 2*WINW/3), random.randint(2*WINH/3, WINH)             # random coordinate on the screen
+			clicked = onCube(x, y)
+			self.rotateCube(clicked, dir, (x, y))
+
 def calculateDistance(x, y, point):         # a function that return the distance between (x, y) and given point
 	return pygame.math.Vector2(x, y).distance_to(point)
 
@@ -408,12 +421,11 @@ def instructions(pos_hint):
 		writeText("Instructions", TEXTCOLOR, None, 50, (0.5, 0.1), False)
 		writeText("There are two cubes. The big cube shows the front, right and up faces and", BLACK, None, 15, (15, 100), False)
 		writeText("the small cube on the top right corner of the screen shows the back, down", BLACK, None, 15, (15, 115), False)
-		writeText("and left faces of the cube. Click and swipe the cursor to rotate the cube.", BLACK, None, 15, (15, 130), False)
+		writeText("and left faces of the cube. Click and slide the cursor to rotate the cube.", BLACK, None, 15, (15, 130), False)
 		writeText("NOTE: Only the main cube takes the rotation instructions.", pygame.Color("red"), None, 15, (15, 145), False)
-		writeText("To rotate the layer, click on the layer & swipe.", BLACK, None, 15, (15, 160), False)
-		writeText("To rotate the whole cube, click outside & swipe.", BLACK, None, 15, (15, 175), False)
+		writeText("To rotate the layer, click on the layer & slide.", BLACK, None, 15, (15, 160), False)
+		writeText("To rotate the whole cube, click outside & slide.", BLACK, None, 15, (15, 175), False)
 		writeText("Press 'Backspace' to get back to the start page.", BLACK, None, 15, (15, 190), False)
-
 
 		backObj, backRect = writeText("Back", pygame.Color("white"), None, 30, (0.07, 0.7), True)
 		pygame.draw.rect(mainSurface, pygame.Color("red"), pygame.Rect(0, backRect.top-2, backRect.width+20, backRect.height+4))
@@ -525,6 +537,7 @@ def main():
 						HIGHLIGHT = onCube(mx, my)
 						if HIGHLIGHT[0]:
 							EVENT = True            # set the EVENT to True only if the cursor is over the cube
+							break
 					if event.type == MOUSEBUTTONDOWN:
 						initialPos = event.pos
 						clickedOnCube = onCube(event.pos[0], event.pos[1])
