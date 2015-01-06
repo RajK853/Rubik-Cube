@@ -174,6 +174,7 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 			self.drawFace(face, firstRun)
 		if firstRun:
 			self.shuffleCube()
+			pass
 
 	def rotateLayer(self, dir, column, row):        # make necessary changes to adjust the colors in faces before swapping them
 		# While rotating the layers, the (0, 0) coordinate of one face may not be the (0, 0) coordinate of another face.
@@ -186,7 +187,7 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 			# make duplicate lists for each face that will change while rotating the layers Up or Down (vertically)
 			dupe_up = copy.deepcopy(self.UP)
 			dupe_down = copy.deepcopy(self.DOWN)
-			# column value is in the string to ease iterating: if we need to rotate column with index 1, column = "1"
+			# column value is in the string to ease iteration: if we need to rotate column with index 1, column = "1"
 			# if we need to rotate all 3 columns of a face, column = "012"
 			column = str(column)
 			for x in column:
@@ -195,23 +196,24 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 					if dir == "Up":
 						for dupeFace, face in [dupe_right, self.DOWN], [dupe_up, self.RIGHT], [dupe_left, self.UP], [dupe_down, self.LEFT]:
 							if dupeFace == dupe_right:
-								dupeFace[x][y] = face[y][x]
-							elif dupeFace == dupe_up:
-								dupeFace[CUBENUM-1-y][x] = face[x][y]
-							elif dupeFace == dupe_left:
-								dupeFace[x][CUBENUM-1-y] = face[y][x]
+								dupeFace[x][CUBENUM-1-y] = face[y][CUBENUM-1-x]
 							elif dupeFace == dupe_down:
+								dupeFace[y][CUBENUM-1-x] = face[CUBENUM-1-x][y]
+							elif dupeFace == dupe_left:
+								dupeFace[CUBENUM-1-x][CUBENUM-1-y] = face[CUBENUM-1-y][x]
+							elif dupeFace == dupe_up:
 								dupeFace[CUBENUM-1-y][x] = face[x][y]
 					if dir == "Down":
 						for dupeFace, face in [dupe_right, self.UP], [dupe_up, self.LEFT], [dupe_left, self.DOWN], [dupe_down, self.RIGHT]:
 							if dupeFace == dupe_right:
-								dupeFace[x][y] = face[y][x]
-							elif dupeFace == dupe_up:
-								dupeFace[CUBENUM-1-y][x] = face[x][y]
-							elif dupeFace == dupe_left:
 								dupeFace[x][CUBENUM-1-y] = face[y][x]
+							elif dupeFace == dupe_up:
+								dupeFace[y][x] = face[CUBENUM-1-x][y]
+							elif dupeFace == dupe_left:
+								dupeFace[CUBENUM-1-x][y] = face[y][CUBENUM-1-x]
 							elif dupeFace == dupe_down:
-								dupeFace[CUBENUM-1-y][x] = face[x][y]
+								dupeFace[y][CUBENUM-1-x] = face[x][CUBENUM-1-y]
+
 			# assign the changed duplicated faces to original faces.
 			self.RIGHT, self.UP, self.LEFT, self.DOWN = dupe_right, dupe_up, dupe_left, dupe_down
 		if dir in ["Left", "Right"]:
@@ -294,53 +296,74 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 						elif column == CUBENUM-1:
 							self.RIGHT = self.rotateFace(self.RIGHT, "AC")
 			if dir in ["Left", "Right"]:
-				# using the direction value, the required rotation is done through the rotateLayer function for both Left and Right directions
-				self.rotateLayer(dir, column, row)
-				if dir == "Left":
-					if row == 0:
-						self.DOWN = self.rotateFace(self.DOWN, "AC")
-					elif row == CUBENUM-1:
-						self.UP = self.rotateFace(self.UP, "C")
-				elif dir == "Right":
-					if row == 0:
-						self.DOWN = self.rotateFace(self.DOWN, "C")
-					elif row == CUBENUM-1:
-						self.UP = self.rotateFace(self.UP, "AC")
+				for item in self.f_RECTS+self.r_RECTS:
+					if clicked[1] in item:      # rotate the layer right or left only if click over front or right faces' block
+						# using the direction value, the required rotation is done through the rotateLayer function for both Left and Right directions
+						self.rotateLayer(dir, column, row)
+						if dir == "Left":
+							if row == 0:
+								self.DOWN = self.rotateFace(self.DOWN, "AC")
+							elif row == CUBENUM-1:
+								self.UP = self.rotateFace(self.UP, "C")
+						elif dir == "Right":
+							if row == 0:
+								self.DOWN = self.rotateFace(self.DOWN, "C")
+							elif row == CUBENUM-1:
+								self.UP = self.rotateFace(self.UP, "AC")
+						break
 		else:           # if not clicked on cube, rotate the whole cube to given direction
 			print("Rotate the whole cube to %s" % dir)
 			if dir == "Right":
 				self.FRONT, self.RIGHT, self.BACK, self.LEFT = \
 					self.LEFT, self.FRONT, self.RIGHT, self.BACK
+				self.DOWN = self.rotateFace(self.DOWN, "C")
+				self.UP = self.rotateFace(self.UP, "AC")
 			elif dir == "Left":
 				self.FRONT, self.RIGHT, self.BACK, self.LEFT = \
 					self.RIGHT, self.BACK, self.LEFT, self.FRONT
+				self.DOWN = self.rotateFace(self.DOWN, "AC")
+				self.UP = self.rotateFace(self.UP, "C")
 			elif dir == "Up":
 				if eventPos[0] < self.r_RECTS[0][0].left:
+					for c in range(CUBENUM):
+						self.BACK[c].reverse()
 					self.FRONT, self.UP, self.BACK, self.DOWN = \
 						self.DOWN, self.FRONT, self.UP, self.BACK
+					for c in range(CUBENUM):
+						self.BACK[c].reverse()
+					self.RIGHT = self.rotateFace(self.RIGHT, "C")
+					self.LEFT = self.rotateFace(self.LEFT, "AC")
 				elif eventPos[0] > self.r_RECTS[0][0].left:
 					columns = [str(i) for i in range(CUBENUM)]      #columns = all columns of the face. column = only the column of the selected block
 					columns = "".join(columns)
 					self.rotateLayer(dir, columns, None)
+					self.FRONT = self.rotateFace(self.FRONT, "AC")
+					self.BACK = self.rotateFace(self.BACK, "C")
 			elif dir == "Down":
 				if eventPos[0] < self.r_RECTS[0][0].left:
+					for c in range(CUBENUM):
+						self.BACK[c].reverse()
 					self.FRONT, self.UP, self.BACK, self.DOWN =  \
 						self.UP, self.BACK, self.DOWN, self.FRONT
+					for c in range(CUBENUM):
+						self.BACK[c].reverse()
+					self.RIGHT = self.rotateFace(self.RIGHT, "AC")
+					self.LEFT = self.rotateFace(self.LEFT, "C")
 				elif eventPos[0] > self.r_RECTS[0][0].left:
 					columns = [str(i) for i in range(CUBENUM)]
 					columns = "".join(columns)
 					self.rotateLayer(dir, columns, None)
+					self.FRONT = self.rotateFace(self.FRONT, "C")
+					self.BACK = self.rotateFace(self.BACK, "AC")
 
 	def shuffleCube(self):
-		frequency = random.randint(10, 20)       # number of times to rotate the cube
-		all_faces = [self.FRONT, self.RIGHT, self.BACK, self.LEFT, self.UP, self.DOWN]
+		frequency = random.randint(10, 20)       # number of times to rotate the cube while suffling
 		all_dir = ["Left", "Right", "Up", "Down"]
 		for i in range(frequency):
-			#face = random.choice(all_faces)         # random face
-			dir = random.choice(all_dir)            # random dir
-			x, y = random.randint(0, 2*WINW/3), random.randint(2*WINH/3, WINH)             # random coordinate on the screen
-			clicked = onCube(x, y)
-			self.rotateCube(clicked, dir, (x, y))
+			dir = random.choice(all_dir)            # randomly choose a direction
+			x, y = random.randint(0, WINW), random.randint(2*WINH/3, WINH)             # random coordinate of the screen
+			clicked = onCube(x, y)      # determine if the coordinate lies on the cube
+			self.rotateCube(clicked, dir, (x, y))       # rotate the whole cube if coordinate outside the cube, else rotate the given layer only
 
 def calculateDistance(x, y, point):         # a function that return the distance between (x, y) and given point
 	return pygame.math.Vector2(x, y).distance_to(point)
@@ -424,7 +447,7 @@ def instructions(pos_hint):
 		writeText("and left faces of the cube. Click and slide the cursor to rotate the cube.", BLACK, None, 15, (15, 130), False)
 		writeText("NOTE: Only the main cube takes the rotation instructions.", pygame.Color("red"), None, 15, (15, 145), False)
 		writeText("To rotate the layer, click on the layer & slide.", BLACK, None, 15, (15, 160), False)
-		writeText("To rotate the whole cube, click outside & slide.", BLACK, None, 15, (15, 175), False)
+		writeText("To rotate the whole cube, click outside the cube & slide.", BLACK, None, 15, (15, 175), False)
 		writeText("Press 'Backspace' to get back to the start page.", BLACK, None, 15, (15, 190), False)
 
 		backObj, backRect = writeText("Back", pygame.Color("white"), None, 30, (0.07, 0.7), True)
@@ -449,7 +472,7 @@ def instructions(pos_hint):
 		if event.type == MOUSEMOTION:
 			try:
 				if initialPos != (None, None):
-					taskPos_Hint[0] = event.pos[0]/WINW
+					pos_hint[0] = event.pos[0]/WINW
 			except:
 				pass
 		if event.type == MOUSEBUTTONUP:
@@ -457,12 +480,12 @@ def instructions(pos_hint):
 			if initialPos != (None, None) and initialPos != finalPos:
 				dir = getDir(initialPos, finalPos)
 				buttonMoveAnimation(taskObj, taskRect, dir)
+				pos_hint[0] = 0.5
 				if dir == "Right":
 					cube = makeNewCube()
 					return True, True
 				elif dir == "Left":
 					return False, False
-				taskPos_Hint = [0.5, 0.7]
 			initialPos = (None, None)
 
 def main():
@@ -505,7 +528,7 @@ def main():
 			if initialPos != (None, None) and initialPos != finalPos:
 				dir = getDir(initialPos, finalPos)
 				buttonMoveAnimation(taskObj, taskRect, dir)
-				taskPos_Hint = [0.5, 0.7]
+				taskPos_Hint[0] = 0.5
 				if dir == "Right":
 					cube = makeNewCube()
 					solvingCube = True
