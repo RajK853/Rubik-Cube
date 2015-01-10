@@ -1,7 +1,11 @@
-Rubik-Cube
-==========
-This is the beta version of the program. There still might be some bugs in it.
-I have few features in my mind that I would like to add in this program eventually.
-For instance, I am planning to store previous moves & add undo features and so on.
-However, I would like to know what changes you think will be nice.
-You can contact me at my Facebook or email with this address: rgk.rana@yahoo.com  :)
+Rubik-Cube v.1.0
+================
+In v.1.0:
+1) Feature added to show arrow when cube is rotated
+2) Timer added (time not accurate)
+3) Pause and Resume feature added
+4) Undo feature added (maximum of 10 undo)
+5) Now three cubes are shown instead of two cubes
+6) Improved cube graphics
+7) User can now change the cube type to 1*1*1 - 5*5*5 from the start page
+8) Lots of bugs fixed
