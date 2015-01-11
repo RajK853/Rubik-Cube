@@ -13,6 +13,7 @@ FPS = 5
 # game constants
 CUBESIZE = 100           # size of small cube. Keep it at least 50. Recommended to keep it a multiple of 10.
 CUBENUM = 3            # set if the cube is a 2*2*2, 3*3*3, 4*4*4 or n*n*n type cube.
+sizeRatio = 0.3     # tell the proportion of size of secondary cubes
 
 # set up window
 WINW = 600
@@ -53,7 +54,10 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 
 		# set up list of lists to store rectangle value of each block of Front, Right and Up faces only
 		self.f_RECTS = [[""]*CUBENUM for i in range(CUBENUM)]
+		#self.b_RECTS = [[""]*CUBENUM for i in range(CUBENUM)]
 		self.r_RECTS = [[""]*CUBENUM for i in range(CUBENUM)]
+		#self.l_RECTS = [[""]*CUBENUM for i in range(CUBENUM)]
+		#self.d_RECTS = [[""]*CUBENUM for i in range(CUBENUM)]
 		self.u_RECTS = [[""]*CUBENUM for i in range(CUBENUM)]
 
 		# set up a list to store the previous moves on the cube
@@ -63,9 +67,9 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 		# codes below draw the Front, Right and Up faces which make the main Cube
 		if face == "front":
 			# I determined the ratio of height and width of each block in each face by doing calculations & experiments
-			# So don't change anything with the size and other variables (unless you want to experiment)
+			# So don't change anything with the size and other variables
 			size = (round(sizeRatio*76*CUBESIZE/113), round(sizeRatio*153*CUBESIZE/226))
-			# In original size, each block image needs to be shifted 25 pixel down from previous cube.
+			# In original size, each block image needs to be shifted 24 pixel down from previous cube.
 			# So here the each block will be shifted according to the image dimension
 			YSHIFT = round(sizeRatio*CUBESIZE*25/226, 2)         # tells how much pixel show each block be shifted down
 			x = position[0]                    #starting x-coordinate pixel position of the cube
@@ -80,7 +84,7 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 					mainSurface.blit(cubeImg, cubeRect)
 					if firstRun:
 						pygame.display.update()
-						pygame.time.wait(50)
+						pygame.time.wait(30)
 
 		if face == "right":
 			YSHIFT = round(sizeRatio*CUBESIZE*50/226, 2)       # in full size, the lefttop of the block is 50 pixel below the lefttop of the image
@@ -108,7 +112,7 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 					mainSurface.blit(cubeImg, cubeRect)
 					if firstRun:
 						pygame.display.update()
-						pygame.time.wait(50)
+						pygame.time.wait(30)
 
 		if face == "up":
 			YSHIFT1 = round(sizeRatio*CUBESIZE*25/226, 2)
@@ -127,10 +131,11 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 					mainSurface.blit(cubeImg, cubeRect)
 					if firstRun:
 						pygame.display.update()
-						pygame.time.wait(50)
+						pygame.time.wait(30)
 
-		# codes below are for small cubes (size: 30% of main cube) showing Back, Left, Right and Down faces
+		# codes below draw a small cube (size: 25% of main cube) showing Back, Left and Down faces
 		if face == "back":
+			# same as for Front face but this is one has smaller dimension i.e 0.25 of front face
 			size = (round(sizeRatio*76*CUBESIZE/113), round(sizeRatio*153*CUBESIZE/226))
 			YSHIFT = round(sizeRatio*CUBESIZE*27/226, 2)
 			x = position[0]
@@ -147,12 +152,14 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 						cubeRect.topleft = (x+i*size[0], y-j*size[1]+(j-i)*YSHIFT)
 					elif position == TOPLEFT:
 						cubeRect.topleft = (x+i*size[0], y-j*size[1]+(i+j)*YSHIFT)
+					#cube.b_RECTS[i][j] = cubeRect
 					mainSurface.blit(cubeImg, cubeRect)
 					if firstRun:
 						pygame.display.update()
-						pygame.time.wait(50)
+						pygame.time.wait(30)
 
 		if face == "left":
+			# same as of Right face but smaller
 			YSHIFT = round(sizeRatio*CUBESIZE*47/226, 2)
 			size = (round(sizeRatio*45*CUBESIZE/113), round(sizeRatio*175*CUBESIZE/226))
 			if position == TOPLEFT:
@@ -165,12 +172,14 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 						cubeImg = pygame.transform.scale(pygame.image.load("Images/Sides/%s.png" % cubeColor), size)
 					cubeRect = cubeImg.get_rect()
 					cubeRect.topleft = (x-i*size[0], y-j*size[1]+(i+j)*YSHIFT)
+					#cube.l_RECTS[i][j] = cubeRect
 					mainSurface.blit(cubeImg, cubeRect)
 					if firstRun:
 						pygame.display.update()
-						pygame.time.wait(50)
+						pygame.time.wait(30)
 
 		if face == "down":
+			# same as of Up face but smaller
 			YSHIFT1 = round(sizeRatio*CUBESIZE*23/226, 2)
 			YSHIFT2 = round(sizeRatio*CUBESIZE*45/226, 2)
 			XSHIFT1 = round(sizeRatio*CUBESIZE*81/226, 2)
@@ -194,13 +203,14 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 						cubeRect.topleft = (x+i*(size[0]-XSHIFT1)+j*XSHIFT2, y-i*(YSHIFT1+0.5)+j*YSHIFT2)
 					elif position == TOPLEFT:
 						cubeRect.topleft = (x+i*size[0]-(i+j)*XSHIFT2, y+i*YSHIFT1+j*YSHIFT2)
+					#cube.d_RECTS[i][j] = cubeRect
 					mainSurface.blit(cubeImg, cubeRect)
 					if firstRun:
 						pygame.display.update()
-						pygame.time.wait(50)
+						pygame.time.wait(30)
 
 	def drawCube(self, faces, firstRun, position, sizeRatio):
-		# draw given faces at given positions with given sizeRatio.
+		# draw front, (right/left) and (top/down) faces.
 		for face in faces:
 			self.drawFace(face, firstRun, position, sizeRatio)
 		if firstRun and position == MID:
@@ -219,7 +229,7 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 			dupe_down = copy.deepcopy(self.DOWN)
 			# column value is in the string to ease iteration: if we need to rotate column with index 1, column = "1"
 			# if we need to rotate all 3 columns of a face, column = "012"
-			column = str(column)			# convert column to string if integer provided
+			column = str(column)
 			for x in column:
 				x = int(x)      # x value is converted from string to integer as it will be used in indexing later
 				for y in range(CUBENUM):
@@ -243,9 +253,9 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 								dupeFace[CUBENUM-1-x][CUBENUM-1-y] = face[y][CUBENUM-1-x]
 							elif dupeFace == dupe_down:
 								dupeFace[CUBENUM-1-y][CUBENUM-1-x] = face[x][CUBENUM-1-y]
+
 			# assign the changed duplicated faces to original faces.
 			self.RIGHT, self.UP, self.LEFT, self.DOWN = dupe_right, dupe_up, dupe_left, dupe_down
-			
 		if dir in ["Left", "Right"]:
 			dupe_front = copy.deepcopy(self.FRONT)
 			dupe_back = copy.deepcopy(self.BACK)
@@ -259,13 +269,13 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 				for i in range(0, len(hFaces), 2):
 					if (hFaces[i] == dupe_back) or (hFaces[i] in [dupe_left] and dir == "Right") or (hFaces[i] == dupe_right and dir == "Left"):
 						hFaces[i][x][row] =hFaces[i+1][CUBENUM-1-x][row]
-						continue		#return back to for loop as we don't want the code below to execute if this condition is True
+						continue
 					hFaces[i][x][row] =hFaces[i+1][x][row]
 			self.FRONT, self.RIGHT, self.BACK, self.LEFT = dupe_front, dupe_right, dupe_back, dupe_left
 
 	def rotateFace(self, face, direction, frequency):      # when layers at edges are rotated horizontally or vertically, face adjacent to that layer also needs to rotate
 		# rotateFace is different from rotateLayer function. This function rotates the colors within the same face in a clockwise or anti-clockwise direction
-		dupe_face = copy.deepcopy(face)  		# make a copy of the required face
+		dupe_face = copy.deepcopy(face)  # make a copy of the required face
 		for f in range(frequency):          # rotates the layer Clockwise/Anticlockwise for given times such that it rotates 90 degree in each turn
 			final_dupe_face = copy.deepcopy(dupe_face)
 			for x in range(CUBENUM):
@@ -279,16 +289,16 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 
 	def rotateCube(self, clicked, dir, eventPos, time, appendMove):
 		time += 2/FPS       # rotating the cube slows down the game so increasing time here too to keep the time tick normal
-		if appendMove:		# if current move asked to be stored in previous movelist
+		if appendMove:
 			if dir in ["Left", "Right"]:
-				opp_dir = [d for d in ["Left", "Right"] if dir != d][0]	# if dir == "Left", opp_dir = "Right" & vice versa
+				opp_dir = [d for d in ["Left", "Right"] if dir != d][0]
 			elif dir in ["Up", "Down"]:
 				opp_dir = [d for d in ["Up", "Down"] if dir != d][0]
 			try:
 				self.pre_moves.append([clicked, opp_dir, eventPos])
 				if len(self.pre_moves) > 10:        # only store previous 10 moves
 					self.pre_moves.remove(self.pre_moves[0])    # delete the oldest move
-			except UnboundLocalError:       # sometime when the cube is rotated fast, this error arises: "UnboundLocalError: local variable 'opp_dir' referenced before assignment"
+			except UnboundLocalError:       # sometime when the cube is rotated fast, this error arise: "UnboundLocalError: local variable 'opp_dir' referenced before assignment"
 				return
 		if clicked[0]:          # if clicked on cube, only rotate the clicked layer to given direction
 			rectPos = (None, None)
@@ -659,8 +669,23 @@ def textBox(text, size, color, pos_hint):        # draw a textbox with the given
 	mainSurface.blit(textObj, textRect)
 	return textRect
 
+def cubeSolved():            # check if all faces of the cube is solved
+	solvedFaces = 0         # stores how many cubes are solved
+	colors = [RED, GREEN, WHITE, YELLOW, BLUE, ORANGE]
+	for face in [cube.FRONT, cube.RIGHT, cube.BACK, cube.LEFT, cube.UP, cube.DOWN]:
+		color_to_check = face[0][0]         # retrives the color in the start of the face & later checks if the face has only this color in it
+		for x in range(CUBENUM):
+			for y in range(CUBENUM):
+				if face[x][y] == color_to_check:
+					continue
+				return False        # return false if there are other colors in the face
+		# the program reaches here only if the previous face had only one color in it
+		solvedFaces += 1        # so update the number of faces solved
+	if solvedFaces == 6:        # if all faces solved
+		return True
+
 def main():
-	global cube, CUBENUM, TOPLEFT, TOPRIGHT, MID
+	global cube, CUBENUM, TOPLEFT, TOPRIGHT, MID, CUBESIZE, sizeRatio
 	solvingCube = clockRunning = False             # tells the current status of the program & clock.
 	HIGHLIGHT = clickedOnCube = SELECTED = [False, None]          # 1) Highlight given rectangle if True. 2) Check on which block the mouse was clicked
 	taskPos_Hint = [0.5, 0.7]
@@ -729,47 +754,63 @@ def main():
 			initialPos = (None, None)
 		if event.type == KEYDOWN:
 			if SELECTED[0]:
-				if event.key in [ord("1"), ord("2"), ord("3"), ord("4")]:
+				if chr(event.key) in ("1 2 3 4 5").split():
 					input_CUBENUM = chr(event.key)
 				if event.key == K_BACKSPACE:
 					input_CUBENUM = input_CUBENUM[:-1]
 		while solvingCube:
-			# constants for positions of cubes
-			sizeRatio = 0.3     # tell the proportion of size of secondary cubes
-			TOPRIGHT = (WINW - CUBESIZE*(CUBENUM/2.5), CUBENUM*round(sizeRatio*153*CUBESIZE/226, 2))
-			TOPLEFT = (CUBESIZE*(CUBENUM/5), CUBENUM*round(sizeRatio*153*CUBESIZE/226, 2))
-			MID = ((WINW-CUBENUM*CUBESIZE)/2, (CUBENUM+0.5)*CUBESIZE)
+			if CUBENUM > 4:
+				CUBESIZE = 60
+				sizeRatio = 0.4
+				# constants for positions of cubes
+				TOPRIGHT = (WINW - CUBESIZE*((CUBENUM+1)*sizeRatio), CUBENUM*round(sizeRatio*153*CUBESIZE/226, 2))
+				TOPLEFT = (CUBESIZE*0.65*((CUBENUM)*sizeRatio), CUBENUM*round(sizeRatio*153*CUBESIZE/226, 2))
+				MID = ((WINW-CUBENUM*CUBESIZE)/2, (CUBENUM)*1.2*CUBESIZE)
+			else:
+				CUBESIZE = 100
+				sizeRatio = 0.3
+				# constants for positions of cubes
+				TOPRIGHT = (WINW - CUBESIZE*(CUBENUM/2.5), CUBENUM*round(sizeRatio*153*CUBESIZE/226, 2))
+				TOPLEFT = (CUBESIZE*(CUBENUM/5), CUBENUM*round(sizeRatio*153*CUBESIZE/226, 2))
+				MID = ((WINW-CUBENUM*CUBESIZE)/2, (CUBENUM+0.5)*CUBESIZE)
 			mainSurface.fill(BGCOLOR)
 			cube.drawCube(["back", "right", "down"], firstRun, TOPRIGHT, sizeRatio)
 			cube.drawCube(["back", "left", "down"], firstRun, TOPLEFT, sizeRatio)
 			cube.drawCube(["front", "right", "up"], firstRun, MID, 1)
 			firstRun= EVENT = False
 			showTime(time)
+			allSolved = cubeSolved()
 			# show status of the game
-			if clockRunning:
-				time += 1/FPS
-				runningObj, runningRect = writeText("Running!", pygame.Color("white"), 30, (0.5, 0.95), True)
-				runningRect.top = WINH-(runningRect.height+4)
-				pygame.draw.rect(mainSurface, pygame.Color("green"), (0, runningRect.top-2, WINW, runningRect.height+4))
-				mainSurface.blit(runningObj, runningRect)
+			if not allSolved:
+				if clockRunning:
+					time += 1/FPS
+					runningObj, runningRect = writeText("Running!", pygame.Color("white"), 30, (0.5, 0.95), True)
+					runningRect.top = WINH-(runningRect.height+4)
+					pygame.draw.rect(mainSurface, pygame.Color("blue"), (0, runningRect.top-2, WINW, runningRect.height+4))
+					mainSurface.blit(runningObj, runningRect)
+				else:
+					pauseObj, pauseRect = writeText("Paused!", pygame.Color("white"), 30, (0.5, 0.95), True)
+					pauseRect.top = WINH-(pauseRect.height+4)
+					pygame.draw.rect(mainSurface, pygame.Color("red"), (0, pauseRect.top-2, WINW, pauseRect.height+4))
+					mainSurface.blit(pauseObj, pauseRect)
+				# highlighting the cube
+				if HIGHLIGHT[0]:                # if HIGHLIGHT[0] set to True
+					for i in range(CUBENUM):
+						if HIGHLIGHT[1] in cube.f_RECTS[i]:             # if the rectanlge to highlight is in FRONT face
+							hImg = pygame.transform.scale(pygame.image.load("Images/Front/Highlight.png"), (round(76*CUBESIZE/113), round(153*CUBESIZE/226)))
+							break       # break the for loop
+						elif HIGHLIGHT[1] in cube.r_RECTS[i]:           # if the rectanlge to highlight is in RIGHT face
+							hImg = pygame.transform.scale(pygame.image.load("Images/Sides/Highlight.png"), (round(42*CUBESIZE/113), round(177*CUBESIZE/226)))
+							break
+						elif HIGHLIGHT[1] in cube.u_RECTS[i]:           # if the rectanlge to highlight is in UP face
+							hImg = pygame.transform.scale(pygame.image.load("Images/Up/Highlight.png"), (round(1.06*CUBESIZE), round(73*CUBESIZE/226)))
+							break
+					highlightCube(hImg, HIGHLIGHT[1])       # highlight the rect at HIGHLIGHT[1] using the hImg image
 			else:
-				pauseObj, pauseRect = writeText("Paused!", pygame.Color("white"), 30, (0.5, 0.95), True)
-				pauseRect.top = WINH-(pauseRect.height+4)
-				pygame.draw.rect(mainSurface, pygame.Color("red"), (0, pauseRect.top-2, WINW, pauseRect.height+4))
-				mainSurface.blit(pauseObj, pauseRect)
-			# highlighting the cube
-			if HIGHLIGHT[0]:                # if HIGHLIGHT[0] set to True
-				for i in range(CUBENUM):
-					if HIGHLIGHT[1] in cube.f_RECTS[i]:             # if the rectanlge to highlight is in FRONT face
-						hImg = pygame.transform.scale(pygame.image.load("Images/Front/Highlight.png"), (round(76*CUBESIZE/113), round(153*CUBESIZE/226)))
-						break       # break the for loop
-					elif HIGHLIGHT[1] in cube.r_RECTS[i]:           # if the rectanlge to highlight is in RIGHT face
-						hImg = pygame.transform.scale(pygame.image.load("Images/Sides/Highlight.png"), (round(42*CUBESIZE/113), round(177*CUBESIZE/226)))
-						break
-					elif HIGHLIGHT[1] in cube.u_RECTS[i]:           # if the rectanlge to highlight is in UP face
-						hImg = pygame.transform.scale(pygame.image.load("Images/Up/Highlight.png"), (round(1.06*CUBESIZE), round(73*CUBESIZE/226)))
-						break
-				highlightCube(hImg, HIGHLIGHT[1])       # highlight the rect at HIGHLIGHT[1] using the hImg image
+				solveObj, solveRect = writeText("Congrats!", pygame.Color("white"), 30, (0.5, 0.95), True)
+				solveRect.top = WINH-(solveRect.height+4)
+				pygame.draw.rect(mainSurface, pygame.Color("green"), (0, solveRect.top-2, WINW, solveRect.height+4))
+				mainSurface.blit(solveObj, solveRect)
 			# event handling
 			for event in pygame.event.get():
 				if event.type == QUIT:
@@ -780,39 +821,41 @@ def main():
 						solvingCube = False
 						break           # break the for event loop without checking other events
 					elif event.key == K_SPACE:
-						undoCube(time, clockRunning, pauseObj, pauseRect)
-						clockRunning = True
-						break
-				if event.type == MOUSEMOTION:
-					mx, my = event.pos
-					HIGHLIGHT = onCube(mx, my)
-					if HIGHLIGHT[0]:
-						break
-				if event.type == MOUSEBUTTONDOWN:
-					initialPos = event.pos
-					if not clockRunning:
-						if pygame.Rect(0, pauseRect.top-2, WINW, pauseRect.height+4).collidepoint(initialPos):
-							buttonMoveAnimation(pauseObj, pauseRect, pygame.Color("red"), "Left")
+						if not allSolved:
+							undoCube(time, clockRunning, pauseObj, pauseRect)
 							clockRunning = True
-							initialPos = (None, None)
 							break
-					else:
-						if pygame.Rect(0, runningRect.top-2, WINW, runningRect.height+4).collidepoint(initialPos):
-							buttonMoveAnimation(runningObj, runningRect, pygame.Color("green"), "Right")
-							clockRunning = False
-							initialPos = (None, None)
+				if not allSolved:
+					if event.type == MOUSEMOTION:
+						mx, my = event.pos
+						HIGHLIGHT = onCube(mx, my)
+						if HIGHLIGHT[0]:
 							break
-					clickedOnCube = onCube(event.pos[0], event.pos[1])
-				if event.type == MOUSEBUTTONUP:
-					finalPos = event.pos
-					if initialPos != (None, None) and initialPos != finalPos:
+					if event.type == MOUSEBUTTONDOWN:
+						initialPos = event.pos
 						if not clockRunning:
-							buttonMoveAnimation(pauseObj, pauseRect, pygame.Color("red"), "Left")
-							clockRunning = True
-						dir = getDir(initialPos, finalPos)
-						cube.rotateCube(clickedOnCube, dir, initialPos, time, True)
-						showArrow(clickedOnCube, dir, initialPos)
-					initialPos = (None, None)
+							if pygame.Rect(0, pauseRect.top-2, WINW, pauseRect.height+4).collidepoint(initialPos):
+								buttonMoveAnimation(pauseObj, pauseRect, pygame.Color("red"), "Left")
+								clockRunning = True
+								initialPos = (None, None)
+								break
+						else:
+							if pygame.Rect(0, runningRect.top-2, WINW, runningRect.height+4).collidepoint(initialPos):
+								buttonMoveAnimation(runningObj, runningRect, pygame.Color("blue"), "Right")
+								clockRunning = False
+								initialPos = (None, None)
+								break
+						clickedOnCube = onCube(event.pos[0], event.pos[1])
+					if event.type == MOUSEBUTTONUP:
+						finalPos = event.pos
+						if initialPos != (None, None) and initialPos != finalPos:
+							if not clockRunning:
+								buttonMoveAnimation(pauseObj, pauseRect, pygame.Color("red"), "Left")
+								clockRunning = True
+							dir = getDir(initialPos, finalPos)
+							cube.rotateCube(clickedOnCube, dir, initialPos, time, True)
+							showArrow(clickedOnCube, dir, initialPos)
+						initialPos = (None, None)
 			pygame.display.update()
 			clock.tick(FPS)
 
