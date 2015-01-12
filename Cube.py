@@ -807,7 +807,7 @@ def main():
 					firstRun = False
 					time = load[2]
 				else:
-					writeText("File corrupted: "+load[1], pygame.Color("red"), 20, (0.5, 0.42), False)
+					writeText("Error: "+load[1], pygame.Color("red"), 20, (0.5, 0.42), False)
 					pygame.display.update()
 					pygame.time.wait(400)
 			if SELECTED[0]:
@@ -877,6 +877,8 @@ def main():
 				if event.type == KEYUP:
 					if event.key == K_BACKSPACE:
 						solvingCube = False
+						if not allSolved:
+							save_load("save", time)
 						break           # break the for event loop without checking other events
 					elif event.key == K_SPACE:
 						if not allSolved:
