@@ -3,6 +3,7 @@ from pygame.locals import *
 import random
 import sys
 import copy
+import os
 
 pygame.init()
 
@@ -423,7 +424,7 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 		return dupe_face
 
 	def shuffleCube(self):
-		frequency = random.randint(20, 40)       # number of times to rotate the cube while suffling
+		frequency = random.randint(40, 70)       # number of times to rotate the cube while suffling
 		all_dir = ["Left", "Right", "Up", "Down"]
 		for i in range(frequency):
 			dir = random.choice(all_dir)            # randomly choose a direction
@@ -612,7 +613,8 @@ def instructions(pos_hint):
 		writeText("To rotate the whole cube, click outside the cube & drag.", BLACK, 15, (15, 190), False)
 		writeText("You can pause/resume the game by clicking on the game status at bottom.", pygame.Color("blue"), 15, (15, 205), False)
 		writeText("Press 'Backspace' to get back to the start page.", BLACK, 15, (15, 220), False)
-		writeText("Press 'Space' to get undo the previous move (max 10 undos).", BLACK, 15, (15, 235), False)
+		writeText("Press 'Space' to undo the previous move (max 10 moves).", BLACK, 15, (15, 235), False)
+		writeText("Press 'L' to load saved data & 'S' to save your cube.", BLACK, 15, (15, 250), False)
 
 		backObj, backRect = writeText("Back", pygame.Color("white"), 30, (0.07, 0.7), True)
 		pygame.draw.rect(mainSurface, pygame.Color("red"), pygame.Rect(0, backRect.top-2, backRect.width+20, backRect.height+4))
@@ -671,7 +673,6 @@ def textBox(text, size, color, pos_hint):        # draw a textbox with the given
 
 def cubeSolved():            # check if all faces of the cube is solved
 	solvedFaces = 0         # stores how many cubes are solved
-	colors = [RED, GREEN, WHITE, YELLOW, BLUE, ORANGE]
 	for face in [cube.FRONT, cube.RIGHT, cube.BACK, cube.LEFT, cube.UP, cube.DOWN]:
 		color_to_check = face[0][0]         # retrives the color in the start of the face & later checks if the face has only this color in it
 		for x in range(CUBENUM):
@@ -683,6 +684,44 @@ def cubeSolved():            # check if all faces of the cube is solved
 		solvedFaces += 1        # so update the number of faces solved
 	if solvedFaces == 6:        # if all faces solved
 		return True
+
+def save_load(mode, time):            # saves or loads the game progress
+	global cube, CUBENUM
+	if mode == "save":              # save the game's current time and all the colors at each face
+		with open("saveData.txt", "w") as file:
+			cube_colors = str(time)
+			for face in [cube.FRONT, cube.RIGHT, cube.BACK, cube.LEFT, cube.UP, cube.DOWN]:
+				face_colors = ""            # Stores the color data of the given face
+				for column in range(CUBENUM):
+					for row in range(CUBENUM):
+						face_colors += face[column][row] + " "
+				cube_colors += "\n%s" % face_colors
+			file.write(cube_colors)
+	elif mode == "load":
+		cubenum = 0         # store what type of cube was saved i.e 2*2*2 or 3*3*3 or other. Defaults to 0
+		if os.path.isfile("saveData.txt"):
+			with open("saveData.txt") as file:
+				data = file.readlines()
+				t = data[0].strip("\n")     # remove the "\n" string from the end
+				data.remove(data[0])       # remove the time info from the data
+				data = [line.split() for line in data]  # convert data from ["a b c d" "1 2 3 4"] format to [["a", "b", "c", "d"], ["1", "2", "3", "4"]]
+				# check if the data from the saveData.txt is corrupted or invalid
+				l = [len(item) for item in data]
+				if l.count(l[0]) != 6:      # if all the items don't have same number of items
+					return [False, "Inconsistent number of items."]         # return the data was not loaded along with the reason
+				cubenum = int(pow(l[0], 0.5))
+				if cubenum != pow(l[0], 0.5):       # if the number of items in each face is not a perfect square
+					return [False, "Faces are rectangular, not square."]
+				CUBENUM = cubenum
+				dupe_cube = makeNewCube()
+				ALLFACE = [dupe_cube.FRONT, dupe_cube.RIGHT, dupe_cube.BACK, dupe_cube.LEFT, dupe_cube.UP, dupe_cube.DOWN]
+				for i in range(len(ALLFACE)):
+					for x in range(cubenum):
+						ALLFACE[i][x] = data[i][x*cubenum:(x+1)*cubenum]
+				return [True, dupe_cube, eval(t)]     # return True to tell data was loaded successfully.
+		else:           # if file doesn't exist, return False
+			return [False, "File not found."]
+		pass
 
 def main():
 	global cube, CUBENUM, TOPLEFT, TOPRIGHT, MID, CUBESIZE, sizeRatio
@@ -703,6 +742,7 @@ def main():
 		taskObj, taskRect = writeText("Task", pygame.Color("white"), 30, taskPos_Hint, True)
 		pygame.draw.rect(mainSurface, BLACK, pygame.Rect(taskRect.left-5, taskRect.top-2, taskRect.width+10, taskRect.height+4))
 		mainSurface.blit(taskObj, taskRect)
+		writeText("Press 'L' to load your saved game.", TEXTCOLOR, 18, (0.5, 0.48), False)
 		userCUBENUM = textBox(input_CUBENUM, 20, BLACK, (0.5, 0.55))
 		if SELECTED[0]:
 			pygame.draw.line(mainSurface, pygame.Color("red"), (userCUBENUM.bottomleft), (userCUBENUM.bottomright), 2)
@@ -740,6 +780,8 @@ def main():
 				if dir == "Right":
 					if input_CUBENUM in ("1 2 3 4 5").split():
 						CUBENUM = int(input_CUBENUM)
+					else:
+						CUBENUM = 3
 					cube = makeNewCube()
 					solvingCube = True
 					firstRun = True
@@ -753,11 +795,27 @@ def main():
 						time = 0
 			initialPos = (None, None)
 		if event.type == KEYDOWN:
+			if event.key == ord("l"):
+				cube = makeNewCube()
+				load = save_load("load", 0)
+				if load[0]:
+					writeText("Cube loaded!", TEXTCOLOR, 24, (0.5, 0.42), False)
+					pygame.display.update()
+					pygame.time.wait(300)
+					cube = load[1]
+					solvingCube = True
+					firstRun = False
+					time = load[2]
+				else:
+					writeText("File corrupted: "+load[1], pygame.Color("red"), 20, (0.5, 0.42), False)
+					pygame.display.update()
+					pygame.time.wait(400)
 			if SELECTED[0]:
 				if chr(event.key) in ("1 2 3 4 5").split():
 					input_CUBENUM = chr(event.key)
 				if event.key == K_BACKSPACE:
 					input_CUBENUM = input_CUBENUM[:-1]
+		# start page ends and game starts
 		while solvingCube:
 			if CUBENUM > 4:
 				CUBESIZE = 60
@@ -806,7 +864,7 @@ def main():
 							hImg = pygame.transform.scale(pygame.image.load("Images/Up/Highlight.png"), (round(1.06*CUBESIZE), round(73*CUBESIZE/226)))
 							break
 					highlightCube(hImg, HIGHLIGHT[1])       # highlight the rect at HIGHLIGHT[1] using the hImg image
-			else:
+			else:           # if game solved
 				solveObj, solveRect = writeText("Congrats!", pygame.Color("white"), 30, (0.5, 0.95), True)
 				solveRect.top = WINH-(solveRect.height+4)
 				pygame.draw.rect(mainSurface, pygame.Color("green"), (0, solveRect.top-2, WINW, solveRect.height+4))
@@ -825,6 +883,9 @@ def main():
 							undoCube(time, clockRunning, pauseObj, pauseRect)
 							clockRunning = True
 							break
+					elif event.key == K_s:
+						if not allSolved:
+							save_load("save", time)
 				if not allSolved:
 					if event.type == MOUSEMOTION:
 						mx, my = event.pos
