@@ -9,6 +9,7 @@ In v.1.0:
 * 6) Improved cube graphics
 * 7) User can now change the cube type to 1x1x1 - 5x5x5 from the start page
 * 8) Lots of bugs fixed
+
 In v.1.1:
 * 1) Undo feature added (max 10 previous moves)
 * 2) Function added to check if all faces are solved
