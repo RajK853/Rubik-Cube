@@ -872,6 +872,8 @@ def main():
 			# event handling
 			for event in pygame.event.get():
 				if event.type == QUIT:
+					if not allSolved:       # save the game is not solved
+						save_load("save", time)
 					pygame.quit()
 					sys.exit()
 				if event.type == KEYUP:
