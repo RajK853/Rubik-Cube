@@ -14,5 +14,5 @@ In v.1.1:
 * 1) Undo feature added (max 10 previous moves)
 * 2) Function added to check if all faces are solved
 * 3) Save and Load feature added
-* 4) Autosaves the game if the cube wasn't solved.
-* 5) Timer made accurate
+* 4) Autosaves the game if the cube wasn't solved
+* 5) Timer accuracy improved
