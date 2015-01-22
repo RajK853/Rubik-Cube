@@ -9,7 +9,7 @@ pygame.init()
 
 #set up clock
 clock = pygame.time.Clock()
-FPS = 5
+FPS = 7
 
 # game constants
 CUBESIZE = 100           # size of small cube. Keep it at least 50. Recommended to keep it a multiple of 10.
@@ -81,9 +81,9 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 					cubeImg = pygame.transform.scale(pygame.image.load("Images/Front/%s.png" % cubeColor), size)
 					cubeRect = cubeImg.get_rect()
 					cubeRect.topleft = (x+i*size[0], y-j*size[1]+(i+j)*YSHIFT)
-					self.f_RECTS[i][j] = cubeRect
 					mainSurface.blit(cubeImg, cubeRect)
 					if firstRun:
+						self.f_RECTS[i][j] = cubeRect # store the rectangle value of this face when run for first time
 						pygame.display.update()
 						pygame.time.wait(30)
 
@@ -107,7 +107,8 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 					cubeRect = cubeImg.get_rect()
 					if position == MID:
 						cubeRect.topleft = (x+i*size[0], y-j*size[1]+(j-i)*YSHIFT)
-						self.r_RECTS[i][j] = cubeRect
+						if firstRun:    # store the rectangle value of this face when run for first time
+							self.r_RECTS[i][j] = cubeRect
 					elif position == TOPRIGHT:
 						cubeRect.topleft = (x+i*size[0], y-j*size[1]+(i+j)*YSHIFT)
 					mainSurface.blit(cubeImg, cubeRect)
@@ -128,9 +129,9 @@ class makeNewCube:    # Make a new solved Rubik cude with Red cubes on the front
 					cubeImg = pygame.transform.scale(pygame.image.load("Images/Up/%s.png" % cubeColor), size)
 					cubeRect = cubeImg.get_rect()
 					cubeRect.topleft = (x+i*size[0]+(j-i)*XSHIFT, y+i*YSHIFT1-j*YSHIFT2)
-					self.u_RECTS[i][j] = cubeRect
 					mainSurface.blit(cubeImg, cubeRect)
 					if firstRun:
+						self.u_RECTS[i][j] = cubeRect
 						pygame.display.update()
 						pygame.time.wait(30)
 
